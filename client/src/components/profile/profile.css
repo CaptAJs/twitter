@@ -1,0 +1,55 @@
+.profile-container {
+  margin-top: 24px;
+}
+.profile-container > .name {
+  padding-left: 32px;
+}
+.profile-container > .follow-container {
+  display: flex;
+  max-width: 400px;
+  padding-left: 80px;
+  margin-top: 24px;
+}
+.profile-container > .follow-container > .followers-container {
+  margin-right: 16px;
+}
+.profile-form {
+  padding: 32px;
+}
+.profile-form > form {
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 24px;
+  margin: auto;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 8%) !important;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.profile-form > form > .btn {
+  float: right;
+  margin: 0px;
+}
+.profile-container > .name-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.profile-container > .name-container > .user-info {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-left: 24px;
+}
+.profile-container > .name-container > .user-info > .image-container {
+  display: inline-block;
+  font-size: 1em;
+  width: 2.5em;
+  height: 2.5em;
+  line-height: 2.5em;
+  text-align: center;
+  border-radius: 50%;
+  background: plum;
+  vertical-align: middle;
+  margin-right: 1em;
+  color: white;
+}

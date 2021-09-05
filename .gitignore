@@ -1,0 +1,8 @@
+/node_modules
+
+/client/node_modules
+
+/config/default.js
+
+/client/package-lock.json
+/package-lock.json

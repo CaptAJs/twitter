@@ -1,0 +1,42 @@
+.post-container {
+  border-radius: 4px;
+  padding: 24px;
+  margin: auto;
+  margin-bottom: 24px;
+}
+.post-container > .image-container {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 16px;
+}
+.post-heading {
+  margin-bottom: 16px;
+}
+.post-container > .image-container > .image {
+  display: inline-block;
+  font-size: 1em;
+  width: 2em;
+  height: 2em;
+  line-height: 2em;
+  text-align: center;
+  border-radius: 50%;
+  background: gray;
+  vertical-align: middle;
+  margin-right: 1em;
+  color: white;
+}
+.post-container > .image-container > .username {
+  cursor: pointer;
+}
+.post-container > .title {
+  padding-left: 48px;
+  font-size: 16px;
+  line-height: 21px;
+  font-weight: 500;
+}
+.post-container > .description {
+  padding-left: 48px;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
+}

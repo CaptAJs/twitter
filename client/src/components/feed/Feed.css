@@ -1,0 +1,7 @@
+.posts-container {
+  padding-left: 32px;
+  padding-right: 32px;
+}
+.posts-container > .heading-section {
+  margin-bottom: 24px;
+}
