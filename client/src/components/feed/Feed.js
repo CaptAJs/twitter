@@ -31,7 +31,7 @@ const Feed = () => {
         }
       })();
     } catch (e) {
-      dispatch({ type: SET_ERROR });
+      dispatch({ type: SET_ERROR, payload: e?.response?.data?.errorMessage });
     }
   }, [history, dispatch]);
 
@@ -62,7 +62,7 @@ const Feed = () => {
         }
       })();
     } catch (e) {
-      // dispatch
+      dispatch({ type: SET_ERROR, payload: e?.response?.data?.errorMessage });
     }
   };
   return (

@@ -2,11 +2,14 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import Post from "../feed/Post";
+import { useDispatch } from "react-redux";
 import "../feed/Feed.css";
+import { SET_ERROR } from "../../actions/types";
 
 const Posts = ({ userId }) => {
   const [posts, setPosts] = useState([]);
   const history = useHistory();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!userId) {
@@ -14,12 +17,20 @@ const Posts = ({ userId }) => {
       return;
     }
     (async () => {
-      const response = await axios.get("/api/posts/user_posts/" + userId);
-      if (response?.data?.success) {
-        setPosts(response?.data?.posts);
+      try {
+        const response = await axios.get("/api/posts/user_posts/" + userId);
+        if (response?.data?.success) {
+          setPosts(response?.data?.posts);
+        } else
+          dispatch({
+            type: SET_ERROR,
+            payload: response?.data?.errorMessage,
+          });
+      } catch (e) {
+        dispatch({ type: SET_ERROR, payload: e?.response?.data?.errorMessage });
       }
     })();
-  }, [history, userId]);
+  }, [dispatch, history, userId]);
 
   const seePost = async (e) => {
     let postId = e.target?.dataset?.id;

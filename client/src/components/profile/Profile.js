@@ -29,6 +29,7 @@ const Profile = () => {
       (async () => {
         try {
           const response = await axios.get("/api/profile/handle/" + key);
+
           if (response?.data?.success) {
             if (response?.data?.profile?.user === profileUser.current) {
               history.push("/profile");
@@ -56,7 +57,10 @@ const Profile = () => {
             });
           }
         } catch (e) {
-          dispatch({ type: SET_ERROR });
+          dispatch({
+            type: SET_ERROR,
+            payload: e?.response?.data?.errorMessage,
+          });
         }
       })();
     } else {
@@ -64,19 +68,6 @@ const Profile = () => {
     }
   }, [dispatch, history, locationRoute.state, userId]);
 
-  const getFollowers = () => {
-    history.push({
-      pathname: "/followers",
-      state: handleName,
-    });
-  };
-
-  const getFollowing = () => {
-    history.push({
-      pathname: "/following",
-      state: handleName,
-    });
-  };
   const followUser = async () => {
     const keys = { api: "follow", input: "following_user" };
     if (follow === FOLLOWING) {
@@ -93,11 +84,12 @@ const Profile = () => {
         else setFollow(FOLLOW);
         window.location.reload();
       } else {
-        dispatch({ type: SET_ERROR, payload: response?.data?.create_profile });
+        dispatch({ type: SET_ERROR, payload: response?.data?.errorMessage });
         if (response?.data?.create_profile) history.push("/profile");
       }
     } catch (e) {
-      dispatch({ type: SET_ERROR });
+      dispatch({ type: SET_ERROR, payload: e?.response?.data?.errorMessage });
+      history.push("/login");
     }
   };
   return (
@@ -120,10 +112,10 @@ const Profile = () => {
               </button>
             </div>
             <div className="follow-container">
-              <div className="followers-container" onClick={getFollowers}>
+              <div className="followers-container">
                 <b>{followers?.length}</b> Followers
               </div>
-              <div className="following-container" onClick={getFollowing}>
+              <div className="following-container">
                 <b>{following?.length}</b> Following
               </div>
             </div>

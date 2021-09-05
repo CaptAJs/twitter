@@ -25,7 +25,7 @@ const Followers = () => {
     const userId = e.target?.dataset["id"];
     if (userId) {
       try {
-        await axios.post("/api/profile/follow/", {
+        await axios.post("/api/profile/follow", {
           following_user: userId,
         });
       } catch (e) {}

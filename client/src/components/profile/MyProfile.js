@@ -5,7 +5,7 @@ import setAuthToken from "../common/setAuthToken";
 import axios from "axios";
 import MyPosts from "../post/MyPosts";
 import { useDispatch } from "react-redux";
-import { SET_ERROR } from "../../actions/types";
+import { SET_ERROR, SET_SUCCESS } from "../../actions/types";
 const MyProfile = () => {
   const [name, setName] = useState("");
   const [handleName, setHandleName] = useState({
@@ -50,7 +50,9 @@ const MyProfile = () => {
         } else {
           dispatch({ type: SET_ERROR, payload: response?.data?.errorMessage });
         }
-      } catch (e) {}
+      } catch (e) {
+        dispatch({ type: SET_ERROR, payload: e?.response?.data?.errorMessage });
+      }
     })();
   }, [dispatch, history]);
 
@@ -72,6 +74,7 @@ const MyProfile = () => {
     }
   };
   const validateHandle = (handle) => {
+    if (!handle) return "Handle can't be empty";
     if (handle.indexOf(" ") >= 0) return "Handle can't have white space";
     return false;
   };
@@ -91,12 +94,13 @@ const MyProfile = () => {
       try {
         const response = await axios.post("/api/profile/", data);
         if (response?.data?.success) {
-          // post created
+          dispatch({ type: SET_SUCCESS, payload: response?.data?.msg });
+          history.push("/create_post");
         } else {
           dispatch({ type: SET_ERROR, payload: response?.data?.errorMessage });
         }
       } catch (e) {
-        dispatch({ type: SET_ERROR });
+        dispatch({ type: SET_ERROR, payload: e?.response?.data?.errorMessage });
       }
     }
   };

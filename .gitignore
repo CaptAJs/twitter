@@ -4,5 +4,7 @@
 
 /config/default.js
 
+.env
+
 /client/package-lock.json
 /package-lock.json

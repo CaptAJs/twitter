@@ -8,7 +8,7 @@ const SuccessHandler = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     let timer;
-    if (successData?.success) {
+    if (successData?.successMsg) {
       timer = setTimeout(() => {
         dispatch({ type: REMOVE_SUCCESS, payload: "" });
       }, 3000);
@@ -20,8 +20,8 @@ const SuccessHandler = () => {
 
   return (
     <div>
-      {successData?.success && (
-        <div className="success-handler">{successData?.success}</div>
+      {successData?.successMsg && (
+        <div className="success-handler">{successData?.successMsg}</div>
       )}
     </div>
   );

@@ -13,7 +13,7 @@ router.get("/me", auth, async (req, res) => {
   try {
     let profile = await Profile.findOne({ user: req.user.id });
     if (!profile) {
-      return res.status(200).json({
+      return res.status(400).json({
         success: false,
         create_profile: true,
         errorMessage: "Please create your profile",
@@ -28,7 +28,7 @@ router.get("/me", auth, async (req, res) => {
     } else return res.status(200).json({ success: true, profile: profile });
   } catch (err) {
     res
-      .status(400)
+      .status(500)
       .json({ success: false, errorMessage: "Something went wrong ..." });
   }
 });
@@ -43,13 +43,13 @@ router.get("/all", async (req, res) => {
     const profile = await Profile.find();
     if (!profile) {
       return res
-        .status(200)
+        .status(404)
         .json({ success: false, errorMessage: "Profile not found" });
     }
     return res.json({ success: true, data: profile });
   } catch (err) {
     res
-      .status(400)
+      .status(500)
       .json({ success: false, errorMessage: "Something went wrong ..." });
   }
 });
@@ -60,7 +60,7 @@ router.get("/all", async (req, res) => {
 router.post("/", auth, async (req, res) => {
   const { errors, isValid } = validateProfileInput(req.body);
   if (!isValid) {
-    return res.status(200).json({ success: false, errorMessage: errors });
+    return res.status(400).json({ success: false, errorMessage: errors });
   }
   const profileFields = {};
   profileFields.user = req.user.id;
@@ -75,7 +75,7 @@ router.post("/", auth, async (req, res) => {
     });
     if (profile_handle && profile_handle.user.toString() !== req.user.id) {
       return res
-        .status(200)
+        .status(400)
         .json({ success: false, errorMessage: "Handle already Exist" });
     }
     const profile = await Profile.findOne({ user: req.user.id });
@@ -89,17 +89,25 @@ router.post("/", auth, async (req, res) => {
         { new: true }
       );
       if (profile_updated) {
-        return res.status(200).json({ success: true, data: profile_updated });
+        return res.status(200).json({
+          success: true,
+          data: profile_updated,
+          msg: "Profile successfully updated",
+        });
       }
     } else {
       const profile_created = await new Profile(profileFields).save();
       if (profile_created)
-        return res.status(201).json({ success: true, data: profile_created });
+        return res.status(201).json({
+          success: true,
+          data: profile_created,
+          msg: "Profile successfully created",
+        });
     }
   } catch (err) {
     console.log(err);
     res
-      .status(400)
+      .status(500)
       .json({ success: false, errorMessage: "Something went wrong ..." });
   }
 });
@@ -112,7 +120,7 @@ router.post("/follow", auth, async (req, res) => {
   try {
     const profile = await Profile.findOne({ user: req.user.id });
     if (!profile) {
-      return res.status(200).json({
+      return res.status(400).json({
         success: false,
         create_profile: true,
         errorMessage: "Create your profile first",
@@ -121,14 +129,14 @@ router.post("/follow", auth, async (req, res) => {
     const { following_user } = req.body;
     if (following_user === req.user.id)
       return res
-        .status(200)
+        .status(400)
         .json({ success: false, errorMessage: "Can't follow yourself" });
     const following_profile = await Profile.findOne({
       user: following_user,
     });
     if (!following_profile)
       return res
-        .status(200)
+        .status(404)
         .json({ success: false, errorMessage: "user does not exist" });
     const already_followed = profile.following.find(
       (fu) => fu.user.toString() == following_profile.user
@@ -154,7 +162,7 @@ router.post("/follow", auth, async (req, res) => {
     });
   } catch (err) {
     res
-      .status(400)
+      .status(500)
       .json({ success: false, errorMessage: "Something went wrong ..." });
   }
 });
@@ -167,7 +175,7 @@ router.post("/unfollow", auth, async (req, res) => {
   try {
     const profile = await Profile.findOne({ user: req.user.id });
     if (!profile) {
-      return res.status(200).json({
+      return res.status(400).json({
         success: false,
         create_profile: true,
         errorMessage: "Create your profile first",
@@ -176,20 +184,20 @@ router.post("/unfollow", auth, async (req, res) => {
     const { unfollowing_user } = req.body;
     if (unfollowing_user === req.user.id)
       return res
-        .status(200)
+        .status(400)
         .json({ success: false, errorMessage: "Can't unfollow yourself" });
     const unfollowing_profile = await Profile.findOne({
       user: unfollowing_user,
     });
     if (!unfollowing_profile)
       return res
-        .status(200)
+        .status(404)
         .json({ success: false, errorMessage: "user does not exist" });
     const followed_index = profile.following.findIndex(
       (fu) => fu.user.toString() == unfollowing_profile.user
     );
     if (followed_index === -1)
-      return res.status(200).json({
+      return res.status(400).json({
         success: false,
         errorMessage: "you haven't followed the user",
       });
@@ -209,7 +217,7 @@ router.post("/unfollow", auth, async (req, res) => {
     });
   } catch (err) {
     res
-      .status(400)
+      .status(500)
       .json({ success: false, errorMessage: "Something went wrong ..." });
   }
 });
@@ -225,14 +233,14 @@ router.get("/followers/:user_id", async (req, res) => {
       profile = await Profile.findOne({ user: req.params.user_id });
       if (!profile)
         return res
-          .status(200)
+          .status(404)
           .json({ success: true, message: "Profile not found" });
     }
     const followers = profile.followers;
     return res.status(200).json({ success: true, followers: followers });
   } catch (err) {
     res
-      .status(400)
+      .status(500)
       .json({ success: false, errorMessage: "Something went wrong ..." });
   }
 });
@@ -248,14 +256,14 @@ router.get("/following/:user_id", async (req, res) => {
       profile = await Profile.findOne({ user: req.params.user_id });
       if (!profile)
         return res
-          .status(200)
+          .status(404)
           .json({ success: true, message: "Profile not found" });
     }
     const following = profile.following;
     return res.status(200).json({ success: true, following: following });
   } catch (err) {
     res
-      .status(400)
+      .status(500)
       .json({ success: false, errorMessage: "Something went wrong ..." });
   }
 });
@@ -269,14 +277,14 @@ router.get("/followers_by_handle/:handle", async (req, res) => {
     const profile = await Profile.findOne({ handle: req.params.handle });
     if (!profile) {
       return res
-        .status(200)
+        .status(404)
         .json({ success: false, message: "Profile not exist" });
     }
     const followers = profile.followers;
     return res.json({ success: true, data: followers });
   } catch (err) {
     res
-      .status(400)
+      .status(500)
       .json({ success: false, errorMessage: "Something went wrong ..." });
   }
 });
@@ -293,13 +301,13 @@ router.get("/handle/:user_id", async (req, res) => {
 
     if (!profile)
       return res
-        .status(200)
+        .status(404)
         .json({ success: false, errorMessage: "Profile not found" });
 
     return res.status(200).json({ success: true, profile: profile });
   } catch (err) {
     res
-      .status(400)
+      .status(500)
       .json({ success: false, errorMessage: "Something went wrong ..." });
   }
 });

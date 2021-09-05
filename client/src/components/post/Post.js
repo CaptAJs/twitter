@@ -2,12 +2,15 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useHistory, useLocation } from "react-router-dom";
 import setAuthToken from "../common/setAuthToken";
+import { useDispatch } from "react-redux";
 import "./post.css";
+import { SET_ERROR } from "../../actions/types";
 
 const Post = () => {
   const [post, setPost] = useState([]);
   const history = useHistory();
   const location = useLocation();
+  const dispatch = useDispatch();
   useEffect(() => {
     const postId = location?.state;
     (async () => {
@@ -16,12 +19,17 @@ const Post = () => {
         history.push("/login");
         return;
       }
-      const response = await axios.get("/api/posts/post/" + postId);
-      if (response?.data?.success) {
-        setPost(response?.data?.post);
+      try {
+        const response = await axios.get("/api/posts/post/" + postId);
+        if (response?.data?.success) {
+          setPost(response?.data?.post);
+        } else
+          dispatch({ type: SET_ERROR, payload: response?.data?.errorMessage });
+      } catch (e) {
+        dispatch({ type: SET_ERROR, payload: e?.response?.data?.errorMessage });
       }
     })();
-  }, [history, location?.state]);
+  }, [dispatch, history, location?.state]);
 
   const seeProfile = (profileHandle) => {
     history.push("/profile/" + profileHandle);

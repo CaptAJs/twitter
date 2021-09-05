@@ -6,7 +6,7 @@ import Header from "./components/header/Header";
 import React, { useEffect } from "react";
 import setAuthToken from "./components/common/setAuthToken";
 import jwt_decode from "jwt-decode";
-import { CURRENT_USER } from "./actions/types";
+import { CURRENT_USER, SET_ERROR } from "./actions/types";
 import { logout } from "./actions/index";
 
 import Routes from "./components/route/Routes";
@@ -31,7 +31,7 @@ function App() {
           } else {
           }
         } catch (error) {
-          console.log("something went wrong", error);
+          dispatch({ type: SET_ERROR });
         }
       }
     })();

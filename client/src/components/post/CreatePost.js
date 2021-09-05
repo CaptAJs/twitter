@@ -63,7 +63,7 @@ const CreatePost = () => {
           if (response?.data?.create_profile) history.push("/profile");
         }
       } catch (e) {
-        dispatch({ type: SET_ERROR });
+        dispatch({ type: SET_ERROR, payload: e?.response?.data?.errorMessage });
       }
     }
   };

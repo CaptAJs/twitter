@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const config = require("config");
+const credentials = require("../../config/credentials");
 const auth = require("../../middleware/auth");
 
 const validateRegisterInput = require("../../validation/register");
@@ -12,12 +12,12 @@ const User = require("../../models/User");
 router.post("/register", (req, res) => {
   const { errors, isValid } = validateRegisterInput(req.body);
   if (!isValid) {
-    return res.status(200).json({ success: false, errorMessage: errors });
+    return res.status(400).json({ success: false, errorMessage: errors });
   }
   User.findOne({ email: req.body.email.toLowerCase() }).then((user) => {
     if (user)
       return res
-        .status(200)
+        .status(400)
         .json({ success: false, errorMessage: "User already exist" });
     else {
       const newUser = new User({
@@ -35,54 +35,61 @@ router.post("/register", (req, res) => {
             .then((user) =>
               res.json({ success: true, msg: "Successfully registered" })
             )
-            .catch((err) => console.log(err));
+            .catch((err) =>
+              res
+                .status(500)
+                .json({ success: true, msg: "Successfully registered" })
+            );
         });
       });
     }
   });
 });
 
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
   const { errors, isValid } = validateLoginInput(req.body);
   if (!isValid) {
-    return res.status(200).json({ success: false, errorMessage: errors });
+    return res.status(400).json({ success: false, errorMessage: errors });
   }
   const email = req.body.email;
   const password = req.body.password;
-
-  User.findOne({ email }).then((user) => {
+  try {
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       const error = "User not found";
-      return res.status(400).json({ success: false, errorMessage: error });
+      return res.status(401).json({ success: false, errorMessage: error });
     }
-    bcrypt.compare(password, user.password).then((isMatch) => {
-      if (isMatch) {
-        const payload = {
-          user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-          },
-        };
 
-        jwt.sign(
-          payload,
-          config.get("jwtSecret"),
-          { expiresIn: 3600 },
-          (err, token) => {
-            return res.status(200).json({
-              success: true,
-              token: "Bearer " + token,
-            });
-          }
-        );
-      } else {
-        return res
-          .status(200)
-          .json({ success: false, errorMessage: "Incorrect password" });
+    const is_match = await bcrypt.compare(password, user.password);
+    if (!is_match) {
+      return res
+        .status(401)
+        .json({ success: false, errorMessage: "Incorrect password" });
+    }
+    const payload = {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    };
+
+    jwt.sign(
+      payload,
+      credentials.jwtSecret,
+      { expiresIn: 3600 },
+      (err, token) => {
+        return res.status(200).json({
+          success: true,
+          token: "Bearer " + token,
+        });
       }
-    });
-  });
+    );
+  } catch (e) {
+    res
+      .status(500)
+      .json({ success: false, errorMessage: "Something went wrong ..." });
+  }
 });
 
 //@route GET api/users/current

@@ -7,6 +7,7 @@ import { useHistory, Link } from "react-router-dom";
 import { Redirect } from "react-router";
 
 import "./login.css";
+import { SET_ERROR } from "../../actions/types";
 
 const LoginForm = () => {
   const [email, setEmail] = useState({
@@ -70,7 +71,8 @@ const LoginForm = () => {
         password: password.value,
       };
       dispatch(login(data));
-    }
+    } else
+      dispatch({ type: SET_ERROR, payload: "Please enter all the fields" });
   };
 
   if (isAuthenticated) {

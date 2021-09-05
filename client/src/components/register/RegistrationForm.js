@@ -6,7 +6,7 @@ import {
   validateMobile,
 } from "../common/formValidation";
 import { NAME, EMAIL, PASSWORD, MOBILE_NUMBER } from "../../constants";
-import { LOGOUT_USER } from "../../actions/types";
+import { LOGOUT_USER, SET_ERROR } from "../../actions/types";
 import { register } from "../../actions/index";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, Link } from "react-router-dom";
@@ -104,7 +104,8 @@ const RegistrationForm = () => {
         [MOBILE_NUMBER]: mobileNumber.value,
       };
       dispatch(register(data));
-    }
+    } else
+      dispatch({ type: SET_ERROR, payload: "Please enter all the fields" });
   };
 
   if (isAuthenticated) {

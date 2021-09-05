@@ -19,8 +19,8 @@ export const register = (data) => async (dispatch) => {
     } else {
       dispatch({ type: SET_ERROR, payload: res?.data?.errorMessage });
     }
-  } catch (error) {
-    dispatch({ type: SET_ERROR, payload: "Something went wrong..." });
+  } catch (e) {
+    dispatch({ type: SET_ERROR, payload: e?.response?.data?.errorMessage });
   }
 };
 
@@ -28,17 +28,16 @@ export const login = (data) => async (dispatch) => {
   try {
     const res = await axios.post("/api/users/login/", data);
     if (res?.data?.success) {
-      const { token } = res.data;
+      const { token } = res?.data;
       localStorage.setItem("jwtToken", token);
       setAuthToken(token);
       const decoded = await jwt_decode(token);
       dispatch({ type: LOGIN_USER, payload: decoded?.user });
-    } else {
-      dispatch({ type: SET_ERROR, payload: res?.data?.errorMessage });
-    }
+    } else dispatch({ type: SET_ERROR, payload: res?.data?.errorMessage });
+
     return;
-  } catch (error) {
-    dispatch({ type: SET_ERROR });
+  } catch (e) {
+    dispatch({ type: SET_ERROR, payload: e?.response?.data?.errorMessage });
   }
 };
 
@@ -49,7 +48,9 @@ export const isLoggedIn = () => {
     try {
       const res = await axios.get("/api/users/current");
       dispatch({ type: CURRENT_USER, payload: res.data });
-    } catch (error) {}
+    } catch (e) {
+      dispatch({ type: SET_ERROR, payload: e?.response?.data?.errorMessage });
+    }
   };
 };
 
